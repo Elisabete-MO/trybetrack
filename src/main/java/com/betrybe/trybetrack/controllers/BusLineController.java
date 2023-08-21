@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,4 +164,20 @@ public class BusLineController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
     }
 
+    @GetMapping("/future")
+    public ResponseEntity<ResponseDTO<List<BusLine>>> getFutureLines(@RequestParam LocalDate date) {
+        List<BusLine> entities = busLineService.getFutureEntities(date);
+        ResponseDTO<List<BusLine>> responseDTO = new ResponseDTO<>(
+            "Itinerários recuperados com sucesso", entities);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+    }
+
+    @GetMapping("/{busLineId}/future")
+    public ResponseEntity<ResponseDTO<List<BusLine>>> getFutureLinesById(
+        @PathVariable Long busLineId, @RequestParam LocalDate date) {
+        List<BusLine> entities = busLineService.getFutureEntitiesById(busLineId, date);
+        ResponseDTO<List<BusLine>> responseDTO = new ResponseDTO<>(
+            "Itinerários recuperados com sucesso", entities);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+    }
 }
