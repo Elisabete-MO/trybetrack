@@ -172,4 +172,16 @@ public class BusLineService implements BaseService<BusLine> {
             return busLine;
         }).toList();
     }
+
+    public Optional<BusLine> getEntityByCode(String code){
+        return busLineRepository.findByCode(code);
+    }
+
+    public List<BusLine> getEntitiesFromStationId(Long stationId) {
+        return busLineRepository.findBusLinesFromStationId(stationId);
+    }
+
+    public List<BusLine> getEntitiesWithAvailableSchedules() {
+        return busLineRepository.findBusLinesWithAvailableSchedules();
+    }
 }

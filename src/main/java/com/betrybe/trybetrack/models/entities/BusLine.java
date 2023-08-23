@@ -1,13 +1,21 @@
 package com.betrybe.trybetrack.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.envers.Audited;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "bus_lines")
+@EntityListeners(AuditingEntityListener.class)
+@Audited
 public class BusLine {
 
     @Id
@@ -28,6 +36,14 @@ public class BusLine {
             inverseJoinColumns = @JoinColumn(name = "station_id")
     )
     private List<Station> stations;
+
+    @CreatedDate
+    @JsonProperty("created_date")
+    private LocalDate createDate;
+
+    @LastModifiedDate
+    @JsonProperty("last_modified_date")
+    private LocalDate lastModifiedDate;
 
     public BusLine() {
     }
@@ -74,5 +90,25 @@ public class BusLine {
 
     public void setSchedules(List<Schedule> schedules) {
         this.schedules = schedules;
+    }
+
+    public void setStations(List<Station> stations) {
+        this.stations = stations;
+    }
+
+    public LocalDate getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDate createDate) {
+        this.createDate = createDate;
+    }
+
+    public LocalDate getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(LocalDate lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }
