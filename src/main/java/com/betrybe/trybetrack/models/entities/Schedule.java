@@ -6,10 +6,13 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import org.hibernate.envers.Audited;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "schedules")
-@EntityListeners(ScheduleListener.class)
+@EntityListeners({ScheduleListener.class, AuditingEntityListener.class})
 @Audited
 public class Schedule {
 
@@ -29,6 +32,14 @@ public class Schedule {
     @JoinColumn(name = "bus_line_id")
     @JsonIgnore
     private BusLine busLine;
+
+    @Column(name = "created_by")
+    @CreatedBy
+    private String createdBy;
+
+    @Column(name = "modified_by")
+    @LastModifiedBy
+    private String modifiedBy;
 
     public Schedule() {
     }

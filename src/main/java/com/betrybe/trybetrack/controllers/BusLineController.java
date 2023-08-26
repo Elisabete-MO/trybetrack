@@ -4,16 +4,19 @@ import com.betrybe.trybetrack.controllers.dto.BusLineDTO;
 import com.betrybe.trybetrack.controllers.dto.ResponseDTO;
 import com.betrybe.trybetrack.controllers.dto.ScheduleDTO;
 import com.betrybe.trybetrack.models.entities.BusLine;
+import com.betrybe.trybetrack.models.entities.Person;
 import com.betrybe.trybetrack.models.entities.Schedule;
 import com.betrybe.trybetrack.services.impl.BusLineService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/buslines")
@@ -27,7 +30,10 @@ public class BusLineController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<BusLine>> createLine(@RequestBody BusLineDTO busLineDTO) {
+    @PreAuthorize("#person.age >= 18")
+    public ResponseEntity<ResponseDTO<BusLine>> createLine(
+        @RequestBody BusLineDTO busLineDTO,
+        @AuthenticationPrincipal Person person) {
         BusLine busLine = busLineService.createEntity(busLineDTO.toEntity());
         ResponseDTO<BusLine> responseDTO = new ResponseDTO<>(
                 "Itinerário criado com sucesso", busLine);
@@ -80,7 +86,9 @@ public class BusLineController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDTO<List<BusLine>>> getAllLines() {
+    @Secured({"VIEWER","USER","ADMIN"})
+    public ResponseEntity<ResponseDTO<List<BusLine>>> getAllLines(
+        @AuthenticationPrincipal Person person) {
         List<BusLine> entities = busLineService.getAllEntities();
         ResponseDTO<List<BusLine>> responseDTO = new ResponseDTO<>(
                 "Itinerários recuperados com sucesso", entities);
@@ -103,8 +111,14 @@ public class BusLineController {
     }
 
     @PutMapping("/schedule/{scheduleId}")
-    public ResponseEntity<ResponseDTO<Schedule>> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleDTO scheduleDTO) {
-        Optional<Schedule> optionalSchedule = busLineService.updateScheduleEntity(scheduleId, scheduleDTO.toEntity());
+//    @Secured("ADMIN")
+    @PreAuthorize("hasAuthority('ADMIN') or #person.email matches '^[a-zA-Z0-9._-]+@betrybe.com$'")
+    public ResponseEntity<ResponseDTO<Schedule>> updateSchedule(
+        @PathVariable Long scheduleId,
+        @RequestBody ScheduleDTO scheduleDTO,
+        @AuthenticationPrincipal Person person) {
+        Optional<Schedule> optionalSchedule = busLineService
+            .updateScheduleEntity(scheduleId, scheduleDTO.toEntity());
 
         if(optionalSchedule.isEmpty()) {
             ResponseDTO<Schedule> responseDTO = new ResponseDTO<>(
