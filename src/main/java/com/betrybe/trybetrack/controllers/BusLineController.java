@@ -87,6 +87,7 @@ public class BusLineController {
 
     @GetMapping
     @Secured({"VIEWER","USER","ADMIN"})
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<ResponseDTO<List<BusLine>>> getAllLines(
         @AuthenticationPrincipal Person person) {
         List<BusLine> entities = busLineService.getAllEntities();

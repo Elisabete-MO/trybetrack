@@ -1,0 +1,37 @@
+on:
+  push:
+    branches: main
+
+jobs:
+
+  Validate-tests:
+    runs-on: ubuntu-latest
+    name: Verifica cobertura de testes
+    steps:
+      - name: Baixa o repositório e dá checkout na branch que o job está rodando
+        uses: actions/checkout@v3
+
+      - name: Instala o Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Valida cobertura dos testes
+        run: mvn clean verify
+
+  Deploy:
+    runs-on: ubuntu-latest
+    name: Realiza implantação da aplicação
+    needs: [Validate-tests]
+    steps:
+      - name: Baixa o repositório e dá checkout na branch que o job está rodando
+        uses: actions/checkout@v2
+
+      - name: Baixa a fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy 🚀
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
